@@ -2,66 +2,47 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Product;
 use App\Models\Producto;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 
 class ProductoController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Mostrar catálogo completo agrupado por categorías
      */
     public function index()
     {
-        $productos = Producto::all();
-        return view ('producto.index', compact('productos'));
+        $categorias = Categoria::with('productos')
+            ->whereHas('productos')
+            ->get();
+
+        return view('productos.index', compact('categorias'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Mostrar detalle de un producto específico
      */
-    public function edit(Product $product)
+    public function show($id)
     {
-        //
+        $producto = Producto::with('categoria')->findOrFail($id);
+
+        // Obtener otros productos de la misma categoría
+        $productosSimilares = Producto::where('categoria_id', $producto->categoria_id)
+            ->where('id', '!=', $id)
+            ->activos()
+            ->get();
+
+        return view('productos.show', compact('producto', 'productosSimilares'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Productos por categoría
      */
-    public function update(Request $request, Product $product)
+    public function porCategoria($categoriaId)
     {
-        //
-    }
+        $categoria = Categoria::with('productos')->findOrFail($categoriaId);
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Product $product)
-    {
-        //
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Product $product)
-    {
-        //
+        return view('productos.categoria', compact('categoria'));
     }
 }
