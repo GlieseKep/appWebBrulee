@@ -2,20 +2,43 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Producto extends Model
 {
-    protected $table = 'PRODUCTOS';
+    use HasFactory;
+
     protected $fillable = [
+        'categoria_id',
         'nombre',
         'descripcion',
-        'precioVenta',
-        'imagen',
-        'imagenAlt'
+        'precio',
+        'stock',
+        'imagen_url',
+        'alt_imagen',
+        'activo',
     ];
-    static public function getProductos()
+
+    protected $casts = [
+        'precio' => 'decimal:2',
+        'stock' => 'integer',
+        'activo' => 'boolean',
+    ];
+
+    /**
+     * Relación: Un producto pertenece a una categoría
+     */
+    public function categoria()
     {
-        return Producto::all();
+        return $this->belongsTo(Categoria::class, 'categoria_id');
+    }
+
+    /**
+     * Scope: Productos activos
+     */
+    public function scopeActivos($query)
+    {
+        return $query->where('activo', true);
     }
 }

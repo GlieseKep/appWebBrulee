@@ -1,0 +1,11 @@
+¡SI PUEDES VER ESTE ARCHIVO, ESTÁS EN EL PROYECTO CORRECTO!
+
+Los cambios implementados:
+✅ Carrito de compras
+✅ Botón "Iniciar a comprar" → /productos  
+✅ Modal del carrito
+
+Si no ves el botón del carrito en el navbar, intenta:
+1. Ctrl + Shift + R (hard refresh)
+2. Cerrar y abrir el navegador
+3. Borrar cookies/caché del navegador

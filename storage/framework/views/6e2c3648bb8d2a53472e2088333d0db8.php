@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
 
-    <title>@yield('title', 'Brúlée Catering & Event Design')</title>
+    <title><?php echo $__env->yieldContent('title', 'Brúlée Catering & Event Design'); ?></title>
 
     <!-- Fuentes -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,9 +21,9 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 
     <!-- Estilos personalizados -->
-    <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">
+    <link rel="stylesheet" href="<?php echo e(asset('css/estilos.css')); ?>">
 
-    @stack('styles')
+    <?php echo $__env->yieldPushContent('styles'); ?>
 </head>
 
 <body>
@@ -31,24 +31,24 @@
     <div class="contenedor">
         <!-- CABECERA -->
         <div id="Cabecera" class="Pagina">
-            <img id="Cabecera-logo" src="{{ asset('assets/img/Logo.png') }}" alt="Logo brûlée">
-            @yield('cabecera-text')
+            <img id="Cabecera-logo" src="<?php echo e(asset('assets/img/Logo.png')); ?>" alt="Logo brûlée">
+            <?php echo $__env->yieldContent('cabecera-text'); ?>
         </div>
 
         <!-- NAVBAR -->
-        @include('partials.navbar')
+        <?php echo $__env->make('partials.navbar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
         <!-- CONTENIDO PRINCIPAL -->
         <main>
-            @yield('content')
+            <?php echo $__env->yieldContent('content'); ?>
         </main>
 
         <!-- FOOTER -->
-        @include('partials.footer')
+        <?php echo $__env->make('partials.footer', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     </div>
 
     <!-- OFFCANVAS ACCESIBILIDAD -->
-    @include('partials.offcanvas-accesibilidad')
+    <?php echo $__env->make('partials.offcanvas-accesibilidad', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -57,12 +57,12 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Script de accesibilidad -->
-    <script src="{{ asset('js/accesibilidad.js') }}"></script>
+    <script src="<?php echo e(asset('js/accesibilidad.js')); ?>"></script>
 
     <!-- Script del carrito de compras -->
-    <script src="{{ asset('js/carrito.js') }}"></script>
+    <script src="<?php echo e(asset('js/carrito.js')); ?>"></script>
 
-    @stack('scripts')
+    <?php echo $__env->yieldPushContent('scripts'); ?>
 
     <script>
         // Configurar AJAX con CSRF token
@@ -79,4 +79,4 @@
     </script>
 </body>
 
-</html>
+</html><?php /**PATH C:\Users\pdani\Downloads\Desarrollo\app2\appWebBrulee\resources\views/layouts/app.blade.php ENDPATH**/ ?>

@@ -3,7 +3,7 @@
     <div class="container-fluid d-flex justify-content-between">
         <!-- Lado izquierdo -->
         <div class="navbar-brand m-0">
-            <a href="{{ route('home') }}" class="btn btn-outline-dark" aria-label="Regresar">
+            <a href="<?php echo e(route('home')); ?>" class="btn btn-outline-dark" aria-label="Regresar">
                 <i class="bi bi-arrow-left"></i>
             </a>
 
@@ -15,7 +15,7 @@
 
         <!-- Lado derecho -->
         <div class="d-flex align-items-center gap-2">
-            <a href="{{ route('productos.index') }}" class="btn btn-outline-dark fw-semibold">
+            <a href="<?php echo e(route('productos.index')); ?>" class="btn btn-outline-dark fw-semibold">
                 Iniciar a comprar
             </a>
 
@@ -27,30 +27,30 @@
                     id="carrito-badge" style="display: none;">0</span>
             </button>
 
-            @if(session()->has('usuario_id'))
-                {{-- Usuario logueado --}}
+            <?php if(session()->has('usuario_id')): ?>
+                
                 <button class="btn btn-primary" type="button" id="btn-perfil" aria-label="Perfil">
-                    Hola, {{ session('usuario_nombre') }} <i class="bi bi-person-circle"></i>
+                    Hola, <?php echo e(session('usuario_nombre')); ?> <i class="bi bi-person-circle"></i>
                 </button>
 
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                    @csrf
+                <form action="<?php echo e(route('logout')); ?>" method="POST" class="d-inline">
+                    <?php echo csrf_field(); ?>
                     <button type="submit" class="btn btn-outline-danger btn-sm" aria-label="Cerrar sesión">
                         <i class="bi bi-box-arrow-right"></i>
                     </button>
                 </form>
-            @else
-                {{-- Usuario invitado --}}
-                <a href="{{ route('login') }}" class="btn btn-primary" aria-label="Iniciar sesión">
+            <?php else: ?>
+                
+                <a href="<?php echo e(route('login')); ?>" class="btn btn-primary" aria-label="Iniciar sesión">
                     Invitado <i class="bi bi-person-circle"></i>
                 </a>
-            @endif
+            <?php endif; ?>
         </div>
     </div>
 </nav>
 
-{{-- Modal de perfil --}}
-@if(session()->has('usuario_id'))
+
+<?php if(session()->has('usuario_id')): ?>
     <div class="modal fade" id="modalPerfil" tabindex="-1" aria-labelledby="modalPerfilLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -84,7 +84,7 @@
         </div>
     </div>
 
-    @push('scripts')
+    <?php $__env->startPush('scripts'); ?>
         <script>
             $(document).ready(function () {
                 const modalPerfil = new bootstrap.Modal('#modalPerfil');
@@ -94,7 +94,7 @@
                     e.preventDefault();
 
                     // Cargar datos del perfil
-                    $.get('{{ route("perfil.datos") }}', function (data) {
+                    $.get('<?php echo e(route("perfil.datos")); ?>', function (data) {
                         $('#perfil-correo').val(data.correo);
                         $('#perfil-nombre').val(data.nombre);
                         modalPerfil.show();
@@ -112,7 +112,7 @@
                         return;
                     }
 
-                    $.post('{{ route("perfil.actualizar.nombre") }}', {
+                    $.post('<?php echo e(route("perfil.actualizar.nombre")); ?>', {
                         nombre: nuevoNombre
                     }, function (response) {
                         if (response.success) {
@@ -135,7 +135,7 @@
                     }
 
                     // Verificar si tiene pedidos
-                    $.get('{{ route("perfil.verificar.pedidos") }}', function (response) {
+                    $.get('<?php echo e(route("perfil.verificar.pedidos")); ?>', function (response) {
                         if (response.tienePedidos) {
                             alert('😔 No puedes eliminar tu cuenta porque ya has realizado pedidos.\n\nTus datos están asociados a transacciones.');
                             return;
@@ -143,12 +143,12 @@
 
                         // Proceder con eliminación
                         $.ajax({
-                            url: '{{ route("perfil.eliminar.cuenta") }}',
+                            url: '<?php echo e(route("perfil.eliminar.cuenta")); ?>',
                             type: 'DELETE',
                             success: function (response) {
                                 if (response.success) {
                                     alert(response.mensaje);
-                                    window.location.href = '{{ route("home") }}';
+                                    window.location.href = '<?php echo e(route("home")); ?>';
                                 } else {
                                     alert(response.mensaje);
                                 }
@@ -163,10 +163,10 @@
                 });
             });
         </script>
-    @endpush
-@endif
+    <?php $__env->stopPush(); ?>
+<?php endif; ?>
 
-{{-- Modal del Carrito --}}
+
 <div class="modal fade" id="modalCarrito" tabindex="-1" aria-labelledby="modalCarritoLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -187,11 +187,11 @@
                 </div>
                 <div>
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Seguir comprando</button>
-                    <a href="{{ route('checkout.index') }}" class="btn btn-success" id="btn-finalizar-compra">
+                    <a href="<?php echo e(route('checkout.index')); ?>" class="btn btn-success" id="btn-finalizar-compra">
                         <i class="bi bi-check-circle"></i> Finalizar compra
                     </a>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</div><?php /**PATH C:\Users\pdani\Downloads\Desarrollo\app2\appWebBrulee\resources\views/partials/navbar.blade.php ENDPATH**/ ?>

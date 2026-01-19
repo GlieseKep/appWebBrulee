@@ -19,6 +19,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        // Fix for Yajra\Pdo\Oci8 compatibility with PHP 8+
+        if (!defined('OCI_DEFAULT')) {
+            define('OCI_DEFAULT', 0); // 0 is equivalent to OCI_NO_AUTO_COMMIT
+        }
     }
 }
