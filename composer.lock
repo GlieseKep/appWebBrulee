@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d7ed82770931eada0bb4887d818478c9",
+    "content-hash": "b21838e3d673e5bdcd8d5f6a882d29cb",
     "packages": [
         {
             "name": "brick/math",
@@ -5997,16 +5997,16 @@
         },
         {
             "name": "yajra/laravel-oci8",
-            "version": "v12.0.0",
+            "version": "v12.6.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/yajra/laravel-oci8.git",
-                "reference": "83e9ebdf9644d1743a6e3fdcfa62294e97d2258d"
+                "reference": "bcd636ea5a917fe04acbfb7d8f03f461f1bf6835"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/yajra/laravel-oci8/zipball/83e9ebdf9644d1743a6e3fdcfa62294e97d2258d",
-                "reference": "83e9ebdf9644d1743a6e3fdcfa62294e97d2258d",
+                "url": "https://api.github.com/repos/yajra/laravel-oci8/zipball/bcd636ea5a917fe04acbfb7d8f03f461f1bf6835",
+                "reference": "bcd636ea5a917fe04acbfb7d8f03f461f1bf6835",
                 "shasum": ""
             },
             "require": {
@@ -6064,7 +6064,7 @@
             ],
             "support": {
                 "issues": "https://github.com/yajra/laravel-oci8/issues",
-                "source": "https://github.com/yajra/laravel-oci8/tree/v12.0.0"
+                "source": "https://github.com/yajra/laravel-oci8/tree/v12.6.1"
             },
             "funding": [
                 {
@@ -6080,7 +6080,7 @@
                     "type": "patreon"
                 }
             ],
-            "time": "2025-02-28T05:15:33+00:00"
+            "time": "2026-01-21T23:13:43+00:00"
         },
         {
             "name": "yajra/laravel-pdo-via-oci8",

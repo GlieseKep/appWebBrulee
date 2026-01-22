@@ -15,6 +15,16 @@
                         <h4 class="mb-0">Datos de Facturación y Pago</h4>
                     </div>
                     <div class="card-body">
+                        @if($errors->any())
+                            <div class="alert alert-danger" role="alert">
+                                <ul class="mb-0">
+                                    @foreach($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <form action="{{ route('checkout.procesar') }}" method="POST" id="checkout-form">
                             @csrf
 
@@ -120,47 +130,134 @@
     </div>
 @endsection
 
+
 @push('scripts')
     <script>
         $(document).ready(function () {
-            if (window.Carrito) {
-                const items = window.Carrito.getItems();
-                if (items.length === 0) {
-                    window.location.href = "{{ route('home') }}";
-                    return;
+            const aceptaPrevio = {!! !empty($aceptaPrevio) ? 'true' : 'false' !!};
+            // para antes de enviar el form
+            // Si acepta términos (o ya aceptó antes), quitamos REQUIRED y limpiamos valores de tarjeta
+            $('#checkout-form').on('submit', function () {
+                const checked = $('#acepta_terminos').is(':checked');
+
+                // Solo si ya aceptó antes: ocultamos y limpiamos
+                if (aceptaPrevio) {
+                    $('#metodo_pago,#numero_tarjeta,#mes_caducidad,#year_caducidad,#codigo_seguridad').prop('required', false);
+                    $('#numero_tarjeta,#mes_caducidad,#year_caducidad,#codigo_seguridad').val('');
+                } else {
+                    // primera vez: tarjeta requerida siempre
+                    $('#metodo_pago,#numero_tarjeta,#mes_caducidad,#year_caducidad,#codigo_seguridad').prop('required', true);
                 }
+            });
 
-                let summaryHtml = '<ul class="list-group list-group-flush mb-3">';
-                let total = 0;
 
-                items.forEach(item => {
-                    const subtotal = item.precio * item.cantidad;
-                    total += subtotal;
-                    summaryHtml += `
-                                <li class="list-group-item d-flex justify-content-between align-items-center px-0">
-                                    <div>
-                                        <h6 class="my-0">${item.nombre}</h6>
-                                        <small class="text-muted">Cant: ${item.cantidad}</small>
+
+            // 1) Resumen del pedido desde BD (Oracle)
+            function cargarResumen() {
+                $.get('/carrito/items', function (data) {
+                    const items = (data && data.items) ? data.items : [];
+
+                    if (items.length === 0) {
+                        // Si no hay carrito, vuelve al home
+                        window.location.href = "{{ route('home') }}";
+                        return;
+                    }
+
+                    let html = '<ul class="list-group list-group-flush mb-3">';
+                    let total = 0;
+
+                    items.forEach(item => {
+                        const precio = parseFloat(item.precio) || 0;
+                        const cantidad = parseInt(item.cantidad) || 0;
+                        const subtotal = precio * cantidad;
+                        total += subtotal;
+
+                        html += `
+                                        <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+                                            <div>
+                                                <h6 class="my-0">${item.nombre}</h6>
+                                                <small class="text-muted">Cant: ${cantidad}</small>
+                                            </div>
+                                            <span class="text-muted">$${subtotal.toFixed(2)}</span>
+                                        </li>
+                                    `;
+                    });
+
+                    html += `
+                                    <li class="list-group-item d-flex justify-content-between px-0">
+                                        <strong>Total (USD)</strong>
+                                        <strong>$${total.toFixed(2)}</strong>
+                                    </li>
+                                </ul>`;
+
+                    $('#checkout-summary').html(html);
+                }).fail(function (xhr) {
+                    if (xhr.status === 401) {
+                        alert('Debes iniciar sesión para finalizar la compra.');
+                        window.location.href = "{{ route('login') }}";
+                        return;
+                    }
+
+                    $('#checkout-summary').html(`
+                                    <div class="alert alert-danger mb-0">
+                                        No se pudo cargar el resumen del pedido.
                                     </div>
-                                    <span class="text-muted">$${subtotal.toFixed(2)}</span>
-                                </li>
-                            `;
+                                `);
                 });
-
-                summaryHtml += `
-                            <li class="list-group-item d-flex justify-content-between px-0">
-                                <strong>Total (USD)</strong>
-                                <strong>$${total.toFixed(2)}</strong>
-                            </li>
-                        </ul>`;
-
-                $('#checkout-summary').html(summaryHtml);
             }
 
-            // Restringir a solo números en campos específicos
+            // 2) Términos: ocultar/mostrar tarjeta sin cambiar estructura visual
+
+
+            function ocultarTarjeta() {
+                const ids = ['#metodo_pago', '#numero_tarjeta', '#mes_caducidad', '#year_caducidad', '#codigo_seguridad'];
+                ids.forEach(sel => {
+                    const $el = $(sel);
+                    if ($el.length) {
+                        $el.prop('required', false);
+                        $el.closest('.col-md-6, .col-12').hide();
+                    }
+                });
+            }
+
+            function mostrarTarjetaObligatoria() {
+                const ids = ['#metodo_pago', '#numero_tarjeta', '#mes_caducidad', '#year_caducidad', '#codigo_seguridad'];
+                ids.forEach(sel => {
+                    const $el = $(sel);
+                    if ($el.length) {
+                        $el.closest('.col-md-6, .col-12').show();
+                    }
+                });
+                $('#metodo_pago,#numero_tarjeta,#mes_caducidad,#year_caducidad,#codigo_seguridad').prop('required', true);
+            }
+
+            // Si ya aceptó antes, ocultar tarjeta siempre
+            if (aceptaPrevio) {
+                $('#acepta_terminos').prop('checked', true);
+                ocultarTarjeta();
+            } else {
+                // Si no aceptó antes, por defecto tarjeta obligatoria (hasta que marque checkbox)
+                mostrarTarjetaObligatoria();
+            }
+
+            // Toggle por checkbox
+            $('#acepta_terminos').on('change', function () {
+                if (this.checked) {
+                    ocultarTarjeta();
+                } else {
+                    if (!aceptaPrevio) {
+                        mostrarTarjetaObligatoria();
+                    }
+                }
+            });
+
+            // 3) Restricción solo números (si tus ids existen)
             $('#cedula, #numero_tarjeta, #codigo_seguridad').on('input', function () {
                 this.value = this.value.replace(/[^0-9]/g, '');
             });
+
+            // Ejecutar
+            cargarResumen();
         });
     </script>
 @endpush

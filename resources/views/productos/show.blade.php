@@ -68,7 +68,10 @@
                         </form>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                            <button type="button" class="btn btn-primary" id="btn-confirmar">Agregar</button>
+                            <button type="button" class="btn btn-primary btn-agregar-carrito" id="btn-confirmar"
+                                data-id="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
+                                data-precio="{{ $producto->precio }}"
+                                data-imagen="{{ $producto->imagen_url }}">Agregar</button>
                         </div>
                     </div>
                 </div>
@@ -125,15 +128,9 @@
                 const $option = $("#selectProducto option:selected");
                 const nombre = $option.text().trim();
 
-                // En un escenario real, deberíamos obtener el precio e imagen del producto seleccionado si es diferente al principal.
-                // Aquí asumimos que si es el principal, usamos sus datos. Si es otro, usamos datos genéricos o recargamos.
-                // Para mantenerlo simple y funcional con la UI actual:
-
                 const producto = {
                     id: parseInt(prdId),
                     nombre: nombre,
-                    // Nota: Usamos el precio del producto principal por simplicidad. 
-                    // Idealmente el select debería tener data-precio.
                     precio: {{ $producto->precio }},
                     cantidad: cantidad,
                     imagen: "{{ $producto->imagen_url }}"

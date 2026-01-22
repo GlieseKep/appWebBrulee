@@ -44,21 +44,28 @@
                         </div>
 
                         <div class="mb-3">
+                            <label class="form-label small" for="cedula">Cédula</label>
+                            <input id="cedula" name="cedula" type="text" class="form-control"
+                                placeholder="10 dígitos" value="{{ old('cedula') }}"
+                                inputmode="numeric" pattern="[0-9]*" maxlength="10" required>
+                        </div>
+
+                        <div class="mb-3">
                             <label class="form-label small" for="correo">Correo</label>
                             <input id="correo" name="correo" type="email" class="form-control"
                                 placeholder="ejemplo@gmail.com" value="{{ old('correo') }}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small" for="clave">Contraseña</label>
-                            <input id="clave" name="clave" type="password" class="form-control" placeholder="******"
-                                required>
+                            <label class="form-label small" for="contrasena">Contraseña</label>
+                            <input id="contrasena" name="contrasena" type="password" class="form-control" placeholder="******"
+                                required minlength="6">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label small" for="clave_confirmation">Confirmar contraseña</label>
-                            <input id="clave_confirmation" name="clave_confirmation" type="password" class="form-control"
-                                placeholder="Repite la contraseña" required>
+                            <label class="form-label small" for="contrasena_confirmation">Confirmar contraseña</label>
+                            <input id="contrasena_confirmation" name="contrasena_confirmation" type="password" class="form-control"
+                                placeholder="Repite la contraseña" required minlength="6">
                         </div>
 
                         <div class="text-end row mt-3">

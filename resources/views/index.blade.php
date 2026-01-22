@@ -75,22 +75,7 @@
 
     {{-- Productos Favoritos (Estructura Legacy) --}}
     <div id="ProductosFavoritos" class="row container mx-auto mt-5">
-        @php
-            // Productos específicos para la grilla "Favoritos" o destacados (Legacy usaba categorías, aquí usamos productos destacados)
-            $productos_favoritos = \App\Models\Producto::activos()->limit(4)->get();
-        @endphp
-        @foreach($productos_favoritos as $producto)
-            <div class="col-md-3 mb-4">
-                <a href="{{ route('productos.show', $producto->id) }}" class="card h-100 shadow-sm text-decoration-none"
-                    aria-label="Ver detalle de {{ $producto->nombre }}">
-                    <img src="{{ $producto->imagen_url }}" class="card-img-top" alt="{{ $producto->nombre }}">
-                    <div class="card-body">
-                        <h2 class="card-title">{{ $producto->nombre }}</h2>
-                        <p class="card-text">{{ Str::limit($producto->descripcion, 50) }}</p>
-                    </div>
-                </a>
-            </div>
-        @endforeach
+        
     </div>
 
     {{-- Sección Productos Destacados --}}
@@ -101,31 +86,31 @@
                 $productos_destacados = \App\Models\Producto::inRandomOrder()->limit(8)->get();
             @endphp
 
-            @foreach($productos_destacados as $prod)
+            @foreach($productos_destacados as $producto)
                 <div class="col-12 col-sm-6 col-md-3 mb-4 text-center">
                     <div class="card shadow-sm h-100">
-                        <a href="{{ route('productos.show', $prod->id) }}" class="text-decoration-none text-reset">
+                        <a href="{{ route('productos.show', ['id' => $producto->id]) }}" class="text-decoration-none text-reset">
                             <img class="Imagen-producto img-fluid card-img-top"
-                                style="max-height: 250px; height: 200px; object-fit: cover;" src="{{ $prod->imagen_url }}"
-                                alt="{{ $prod->nombre }}">
+                                style="max-height: 250px; height: 200px; object-fit: cover;" src="{{ $producto->imagen_url }}"
+                                alt="{{ $producto->nombre }}">
                         </a>
                         <div class="card-body d-flex flex-column justify-content-between">
-                            <a href="{{ route('productos.show', $prod->id) }}" class="text-decoration-none text-reset">
-                                <h5 class="card-title Titulo-producto mt-2 px-0">{{ $prod->nombre }}</h5>
-                                <p class="card-text small text-muted">{{ Str::limit($prod->descripcion, 60) }}</p>
+                            <a href="{{ route('productos.show', ['id' => $producto->id]) }}" class="text-decoration-none text-reset">
+                                <h5 class="card-title Titulo-producto mt-2 px-0">{{ $producto->nombre }}</h5>
+                                <p class="card-text small text-muted">{{ Str::limit($producto->descripcion, 60) }}</p>
                                 <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
-                                    <p class="fw-bold text-primary mb-0">${{ number_format($prod->precio, 2) }}</p>
+                                    <p class="fw-bold text-primary mb-0">${{ number_format($producto->precio, 2) }}</p>
                                     <div class="input-group input-group-sm" style="width: 100px;">
                                         <button class="btn btn-outline-secondary btn-minus" type="button">−</button>
                                         <input type="number" class="form-control text-center qty-input" value="1" min="1"
-                                            max="{{ $prod->stock ?? 99 }}">
+                                            max="{{ $producto->stock ?? 99 }}">
                                         <button class="btn btn-outline-secondary btn-plus" type="button">+</button>
                                     </div>
                                 </div>
                             </a>
                             <button class="btn btn-sm btn-outline-primary w-100 btn-agregar-carrito mt-auto"
-                                data-id="{{ $prod->id }}" data-nombre="{{ $prod->nombre }}" data-precio="{{ $prod->precio }}"
-                                data-imagen="{{ $prod->imagen_url }}">
+                                data-id="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}" data-precio="{{ $producto->precio }}"
+                                data-imagen="{{ $producto->imagen_url }}">
                                 Agregar al carrito
                             </button>
                         </div>
@@ -174,7 +159,7 @@
                 const cantidad = parseInt(card.find('.qty-input').val()) || 1;
 
                 const producto = {
-                    id: parseInt(btn.data('id')),
+                    id: String(btn.data('id')),
                     nombre: btn.data('nombre'),
                     precio: parseFloat(btn.data('precio')),
                     cantidad: cantidad,

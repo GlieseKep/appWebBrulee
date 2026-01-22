@@ -18,13 +18,13 @@
                 @foreach($categoria->productos as $producto)
                     <div class="col-12 col-sm-6 col-md-3">
                         <div class="card shadow-sm h-100">
-                            <a href="{{ route('productos.show', $producto->id) }}" class="text-decoration-none text-reset">
+                            <a href="{{ route('productos.show', ['id' => $producto->id]) }}" class="text-decoration-none text-reset">
                                 <img src="{{ $producto->imagen_url }}" class="card-img-top"
                                     alt="{{ $producto->alt_imagen ?? $producto->nombre }}"
                                     style="height: 200px; object-fit: cover;">
                             </a>
                             <div class="card-body d-flex flex-column justify-content-between">
-                                <a href="{{ route('productos.show', $producto->id) }}" class="text-decoration-none text-reset">
+                                <a href="{{ route('productos.show', ['id' => $producto->id]) }}" class="text-decoration-none text-reset">
                                     <h5 class="card-title Titulo-producto">{{ $producto->nombre }}</h5>
                                     <p class="card-text small text-muted">{{ Str::limit($producto->descripcion, 60) }}</p>
                                     <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
@@ -79,12 +79,13 @@
                 const cantidad = parseInt(card.find('.qty-input').val()) || 1;
 
                 const producto = {
-                    id: parseInt(btn.data('id')),
+                    id: String(btn.data('id')),
                     nombre: btn.data('nombre'),
                     precio: parseFloat(btn.data('precio')),
                     cantidad: cantidad,
                     imagen: btn.data('imagen')
                 };
+
 
                 if (window.Carrito) {
                     window.Carrito.agregar(producto);

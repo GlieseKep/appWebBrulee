@@ -74,22 +74,7 @@
 
     
     <div id="ProductosFavoritos" class="row container mx-auto mt-5">
-        <?php
-            // Productos específicos para la grilla "Favoritos" o destacados (Legacy usaba categorías, aquí usamos productos destacados)
-            $productos_favoritos = \App\Models\Producto::activos()->limit(4)->get();
-        ?>
-        <?php $__currentLoopData = $productos_favoritos; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $producto): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-            <div class="col-md-3 mb-4">
-                <a href="<?php echo e(route('productos.show', $producto->id)); ?>" class="card h-100 shadow-sm text-decoration-none"
-                    aria-label="Ver detalle de <?php echo e($producto->nombre); ?>">
-                    <img src="<?php echo e($producto->imagen_url); ?>" class="card-img-top" alt="<?php echo e($producto->nombre); ?>">
-                    <div class="card-body">
-                        <h2 class="card-title"><?php echo e($producto->nombre); ?></h2>
-                        <p class="card-text"><?php echo e(Str::limit($producto->descripcion, 50)); ?></p>
-                    </div>
-                </a>
-            </div>
-        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+        
     </div>
 
     
@@ -100,31 +85,31 @@
                 $productos_destacados = \App\Models\Producto::inRandomOrder()->limit(8)->get();
             ?>
 
-            <?php $__currentLoopData = $productos_destacados; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $prod): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php $__currentLoopData = $productos_destacados; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $producto): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="col-12 col-sm-6 col-md-3 mb-4 text-center">
                     <div class="card shadow-sm h-100">
-                        <a href="<?php echo e(route('productos.show', $prod->id)); ?>" class="text-decoration-none text-reset">
+                        <a href="<?php echo e(route('productos.show', ['id' => $producto->id])); ?>" class="text-decoration-none text-reset">
                             <img class="Imagen-producto img-fluid card-img-top"
-                                style="max-height: 250px; height: 200px; object-fit: cover;" src="<?php echo e($prod->imagen_url); ?>"
-                                alt="<?php echo e($prod->nombre); ?>">
+                                style="max-height: 250px; height: 200px; object-fit: cover;" src="<?php echo e($producto->imagen_url); ?>"
+                                alt="<?php echo e($producto->nombre); ?>">
                         </a>
                         <div class="card-body d-flex flex-column justify-content-between">
-                            <a href="<?php echo e(route('productos.show', $prod->id)); ?>" class="text-decoration-none text-reset">
-                                <h5 class="card-title Titulo-producto mt-2 px-0"><?php echo e($prod->nombre); ?></h5>
-                                <p class="card-text small text-muted"><?php echo e(Str::limit($prod->descripcion, 60)); ?></p>
+                            <a href="<?php echo e(route('productos.show', ['id' => $producto->id])); ?>" class="text-decoration-none text-reset">
+                                <h5 class="card-title Titulo-producto mt-2 px-0"><?php echo e($producto->nombre); ?></h5>
+                                <p class="card-text small text-muted"><?php echo e(Str::limit($producto->descripcion, 60)); ?></p>
                                 <div class="d-flex justify-content-center align-items-center gap-2 mb-2">
-                                    <p class="fw-bold text-primary mb-0">$<?php echo e(number_format($prod->precio, 2)); ?></p>
+                                    <p class="fw-bold text-primary mb-0">$<?php echo e(number_format($producto->precio, 2)); ?></p>
                                     <div class="input-group input-group-sm" style="width: 100px;">
                                         <button class="btn btn-outline-secondary btn-minus" type="button">−</button>
                                         <input type="number" class="form-control text-center qty-input" value="1" min="1"
-                                            max="<?php echo e($prod->stock ?? 99); ?>">
+                                            max="<?php echo e($producto->stock ?? 99); ?>">
                                         <button class="btn btn-outline-secondary btn-plus" type="button">+</button>
                                     </div>
                                 </div>
                             </a>
                             <button class="btn btn-sm btn-outline-primary w-100 btn-agregar-carrito mt-auto"
-                                data-id="<?php echo e($prod->id); ?>" data-nombre="<?php echo e($prod->nombre); ?>" data-precio="<?php echo e($prod->precio); ?>"
-                                data-imagen="<?php echo e($prod->imagen_url); ?>">
+                                data-id="<?php echo e($producto->id); ?>" data-nombre="<?php echo e($producto->nombre); ?>" data-precio="<?php echo e($producto->precio); ?>"
+                                data-imagen="<?php echo e($producto->imagen_url); ?>">
                                 Agregar al carrito
                             </button>
                         </div>
@@ -173,7 +158,7 @@
                 const cantidad = parseInt(card.find('.qty-input').val()) || 1;
 
                 const producto = {
-                    id: parseInt(btn.data('id')),
+                    id: String(btn.data('id')),
                     nombre: btn.data('nombre'),
                     precio: parseFloat(btn.data('precio')),
                     cantidad: cantidad,

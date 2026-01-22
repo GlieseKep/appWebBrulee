@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <meta name="is-auth" content="{{ session()->has('usuario_id') ? '1' : '0' }}">
 
     <title>@yield('title', 'Brúlée Catering & Event Design')</title>
 
@@ -24,6 +25,9 @@
     <link rel="stylesheet" href="{{ asset('css/estilos.css') }}">
 
     @stack('styles')
+
+    
+
 </head>
 
 <body>
@@ -60,7 +64,8 @@
     <script src="{{ asset('js/accesibilidad.js') }}"></script>
 
     <!-- Script del carrito de compras -->
-    <script src="{{ asset('js/carrito.js') }}"></script>
+    <script src="{{ asset('js/carrito.js') }}?v=2"></script>
+
 
     @stack('scripts')
 

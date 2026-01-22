@@ -30,7 +30,7 @@
             <?php if(session()->has('usuario_id')): ?>
                 
                 <button class="btn btn-primary" type="button" id="btn-perfil" aria-label="Perfil">
-                    Hola, <?php echo e(session('usuario_nombre')); ?> <i class="bi bi-person-circle"></i>
+                    Hola, <?php echo e(session('usuario_id')); ?> <i class="bi bi-person-circle"></i>
                 </button>
 
                 <form action="<?php echo e(route('logout')); ?>" method="POST" class="d-inline">
@@ -87,7 +87,15 @@
     <?php $__env->startPush('scripts'); ?>
         <script>
             $(document).ready(function () {
-                const modalPerfil = new bootstrap.Modal('#modalPerfil');
+                // Configurar token CSRF para AJAX
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+
+                const modalPerfil = new bootstrap.Modal(document.getElementById('modalPerfil'));
+
 
                 // Abrir modal de perfil
                 $('#btn-perfil').on('click', function (e) {
@@ -98,9 +106,18 @@
                         $('#perfil-correo').val(data.correo);
                         $('#perfil-nombre').val(data.nombre);
                         modalPerfil.show();
-                    }).fail(function () {
-                        alert('Error al cargar el perfil');
+                    }).fail(function (xhr) {
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            $('#perfil-error').text(xhr.responseJSON.message).show();
+                            return;
+                        }
+                        if (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.nombre) {
+                            $('#perfil-error').text(xhr.responseJSON.errors.nombre[0]).show();
+                            return;
+                        }
+                        $('#perfil-error').text('Error al actualizar el nombre').show();
                     });
+
                 });
 
                 // Guardar cambios
@@ -130,14 +147,14 @@
 
                 // Eliminar cuenta
                 $('#btn-eliminar-cuenta').on('click', function () {
-                    if (!confirm('⚠️ ¿Estás seguro de que deseas eliminar tu cuenta?\n\nEsta acción no se puede deshacer.')) {
+                    if (!confirm('¿Estás seguro de que deseas eliminar tu cuenta?\n\nEsta acción no se puede deshacer.')) {
                         return;
                     }
 
                     // Verificar si tiene pedidos
                     $.get('<?php echo e(route("perfil.verificar.pedidos")); ?>', function (response) {
                         if (response.tienePedidos) {
-                            alert('😔 No puedes eliminar tu cuenta porque ya has realizado pedidos.\n\nTus datos están asociados a transacciones.');
+                            alert('No se puede eliminar la cuenta porque ya has realizado pedidos.\n\nTus datos están asociados a transacciones.');
                             return;
                         }
 

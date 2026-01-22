@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="<?php echo e(csrf_token()); ?>">
+    <meta name="is-auth" content="<?php echo e(session()->has('usuario_id') ? '1' : '0'); ?>">
 
     <title><?php echo $__env->yieldContent('title', 'Brúlée Catering & Event Design'); ?></title>
 
@@ -24,6 +25,9 @@
     <link rel="stylesheet" href="<?php echo e(asset('css/estilos.css')); ?>">
 
     <?php echo $__env->yieldPushContent('styles'); ?>
+
+    
+
 </head>
 
 <body>
@@ -60,7 +64,8 @@
     <script src="<?php echo e(asset('js/accesibilidad.js')); ?>"></script>
 
     <!-- Script del carrito de compras -->
-    <script src="<?php echo e(asset('js/carrito.js')); ?>"></script>
+    <script src="<?php echo e(asset('js/carrito.js')); ?>?v=2"></script>
+
 
     <?php echo $__env->yieldPushContent('scripts'); ?>
 

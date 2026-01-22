@@ -5,141 +5,133 @@ namespace App\Http\Controllers;
 use App\Models\UsuarioApp;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
 
 class PerfilController extends Controller
 {
-    /**
-     * Mostrar datos del perfil (para AJAX)
-     */
     public function obtenerPerfil()
     {
-        $usuarioId = session('usuario_id');
+        $usuarioNombre = session('usuario_id');
 
-        if (!$usuarioId) {
+        if (!$usuarioNombre) {
             return response()->json(['error' => 'No autenticado'], 401);
         }
-
-        $usuario = UsuarioApp::with('cliente')->find($usuarioId);
-
-        return response()->json([
-            'nombre' => $usuario->nombre,
-            'correo' => $usuario->cliente->correo
-        ]);
-    }
-
-    /**
-     * Actualizar nombre del usuario
-     */
-    public function actualizarNombre(Request $request)
-    {
-        $usuarioId = session('usuario_id');
-
-        if (!$usuarioId) {
-            return response()->json(['error' => 'No autenticado'], 401);
-        }
-
-        $usuario = UsuarioApp::find($usuarioId);
-
-        // Validar
-        $request->validate([
-            'nombre' => [
-                'required',
-                'string',
-                'min:3',
-                'max:50',
-                Rule::unique('usuarios_app', 'nombre')->ignore($usuario->id)
-            ]
-        ]);
 
         try {
-            $usuario->nombre = $request->nombre;
-            $usuario->save();
+            \Log::info('Buscando perfil para usuario: ' . $usuarioNombre);
 
-            // Actualizar sesión
-            session(['usuario_nombre' => $request->nombre]);
+            // 1) Traer el usuario (sin depender de relación)
+            $usuario = UsuarioApp::find($usuarioNombre);
 
-            return response()->json([
-                'success' => true,
-                'mensaje' => 'Nombre actualizado correctamente',
-                'nuevoNombre' => $usuario->nombre,
+            if (!$usuario) {
+                \Log::error('Usuario no encontrado en BD: ' . $usuarioNombre);
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
+            }
+
+            // OJO: dependiendo del driver oracle, los atributos pueden venir en minúscula
+            // Por eso leo ambos posibles.
+            $usrNombre = $usuario->USR_NOMBRE ?? $usuario->usr_nombre ?? null;
+            $cliCedula = $usuario->CLI_CEDULA ?? $usuario->cli_cedula ?? null;
+
+            \Log::info('Usuario encontrado:', [
+                'usr_nombre' => $usrNombre,
+                'cli_cedula' => $cliCedula,
             ]);
 
-        } catch (\Exception $e) {
+            if (!$cliCedula) {
+                \Log::error('Usuario existe pero no tiene CLI_CEDULA.');
+                return response()->json(['error' => 'Perfil incompleto (sin cliente asociado)'], 500);
+            }
+
+            // 2) Traer correo del cliente directo desde BD (100% seguro)
+            $row = DB::connection('oracle')
+                ->table('CLIENTE')
+                ->select('CLI_CORREO')
+                ->where('CLI_CEDULA', (string)$cliCedula)
+                ->first();
+
+            $correo = $row?->CLI_CORREO ?? '';
+
+            \Log::info('Correo cliente encontrado:', ['correo' => $correo]);
+
             return response()->json([
-                'success' => false,
-                'message' => 'Error al actualizar el nombre'
-            ], 500);
+                'nombre' => (string)($usrNombre ?? ''),
+                'correo' => (string)$correo,
+            ]);
+        } catch (\Throwable $e) {
+            \Log::error('Error en obtenerPerfil: ' . $e->getMessage());
+            return response()->json(['error' => 'No se pudo cargar el perfil'], 500);
         }
     }
 
-    /**
-     * Verificar si el usuario tiene pedidos
-     */
+    public function actualizarNombre(Request $request)
+    {
+        // Mantener el botón, pero NO cambiar username (PK en Oracle)
+        return response()->json([
+            'success' => false,
+            'message' => 'Por seguridad, el nombre de usuario no se puede cambiar.',
+        ], 422);
+    }
+
     public function verificarPedidos()
     {
         if (!session()->has('usuario_id')) {
             return response()->json(['error' => 'No autenticado'], 401);
         }
 
-        $usuario = UsuarioApp::find(session('usuario_id'));
-
-        if (!$usuario) {
-            return response()->json(['error' => 'Usuario no encontrado'], 404);
-        }
-
-        // TODO: Cuando implementes pedidos, descomentar
-        // $tienePedidos = \App\Models\Pedido::where('cedula_cliente', $usuario->cedula_cliente)->exists();
-        $tienePedidos = false; // Por ahora siempre false
-
         return response()->json([
             'success' => true,
-            'tienePedidos' => $tienePedidos,
+            'tienePedidos' => false,
         ]);
     }
 
-    /**
-     * Eliminar cuenta del usuario
-     */
     public function eliminarCuenta()
     {
         if (!session()->has('usuario_id')) {
             return response()->json(['error' => 'No autenticado'], 401);
         }
 
-        $usuario = UsuarioApp::find(session('usuario_id'));
-
-        if (!$usuario) {
-            return response()->json(['error' => 'Usuario no encontrado'], 404);
-        }
-
-        // TODO: Cuando implementes pedidos, verificar
-        // $tienePedidos = \App\Models\Pedido::where('cedula_cliente', $usuario->cedula_cliente)->exists();
-        $tienePedidos = false;
-
-        if ($tienePedidos) {
-            return response()->json([
-                'success' => false,
-                'mensaje' => '😔 No puedes eliminar tu cuenta porque ya has realizado pedidos. Tus datos están asociados a transacciones.',
-            ]);
-        }
-
         try {
-            // Obtener el cliente asociado
-            $cliente = $usuario->cliente;
+            $usuario = UsuarioApp::find(session('usuario_id'));
+            if (!$usuario) {
+                return response()->json(['error' => 'Usuario no encontrado'], 404);
+            }
 
-            // Eliminar usuario y cliente
-            $usuario->delete();
-            $cliente->delete();
+            $cliCedula = $usuario->CLI_CEDULA ?? $usuario->cli_cedula ?? null;
+            if (!$cliCedula) {
+                return response()->json(['error' => 'Perfil incompleto (sin cliente asociado)'], 500);
+            }
 
-            // Cerrar sesión
+            // Por ahora no hay pedidos
+            $tienePedidos = false;
+            if ($tienePedidos) {
+                return response()->json([
+                    'success' => false,
+                    'mensaje' => 'No puedes eliminar tu cuenta porque ya has realizado pedidos.',
+                ]);
+            }
+
+            DB::connection('oracle')->beginTransaction();
+
+            // Borrar primero usuario (hijo)
+            UsuarioApp::where('USR_NOMBRE', $usuario->USR_NOMBRE ?? $usuario->usr_nombre)->delete();
+
+            // Borrar luego cliente (padre)
+            DB::connection('oracle')->table('CLIENTE')
+                ->where('CLI_CEDULA', (string)$cliCedula)
+                ->delete();
+
+            DB::connection('oracle')->commit();
+
             session()->flush();
 
             return response()->json([
                 'success' => true,
-                'mensaje' => 'Tu cuenta ha sido eliminada exitosamente. ¡Gracias por habernos visitado!',
+                'mensaje' => 'Tu cuenta ha sido eliminada exitosamente.',
             ]);
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
+            DB::connection('oracle')->rollBack();
+            \Log::error('Error al eliminar cuenta: ' . $e->getMessage());
+
             return response()->json([
                 'success' => false,
                 'mensaje' => 'Error al eliminar la cuenta. Por favor, inténtalo de nuevo.',

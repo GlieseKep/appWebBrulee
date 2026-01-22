@@ -48,20 +48,17 @@
 
                         <div class="mb-3">
                             <label for="nombre" class="form-label small">Nombre</label>
-                            <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Nombre"
-                                value="{{ old('nombre') }}" required>
+                            <input id="nombre" name="nombre" type="text" class="form-control" placeholder="Nombre" value="{{ old('nombre') }}" required minlength="3">
                         </div>
 
                         <div class="mb-3">
                             <label for="correo" class="form-label small">Email</label>
-                            <input id="correo" name="correo" type="email" class="form-control"
-                                placeholder="correo@gmail.com" value="{{ old('correo') }}" required>
+                            <input id="correo" name="correo" type="email" class="form-control" placeholder="correo@gmail.com" value="{{ old('correo') }}" required>
                         </div>
 
                         <div class="mb-3">
-                            <label for="clave" class="form-label small">Contraseña</label>
-                            <input id="clave" name="clave" type="password" class="form-control" placeholder="**************"
-                                required>
+                            <label for="contrasena" class="form-label small">Contraseña</label>
+                            <input id="contrasena" name="contrasena" type="password" class="form-control" placeholder="**********" required minlength="6">
                         </div>
 
                         <div class="text-end mt-3">
